@@ -26,20 +26,66 @@
             margin: 0 auto;
         }
 
+        .week-nav-container {
+            position: relative;
+            background: #f8fafc;
+            padding: 16px;
+        }
+
+        .week-nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+
+        .week-nav-arrow:hover {
+            background: #f8fafc;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .week-nav-arrow:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .week-nav-arrow.left {
+            left: 8px;
+        }
+
+        .week-nav-arrow.right {
+            right: 8px;
+        }
+
         .week-tabs {
             display: flex;
             gap: 8px;
-            margin-bottom: 12px;
-            overflow-x: auto;
-            padding: 4px;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+        }
+
+        .week-tabs::-webkit-scrollbar {
+            display: none;
         }
 
         .week-tab {
-            flex-shrink: 0;
-            padding: 10px 20px;
-            border-radius: 16px;
+            min-width: 72px;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-size: 12px;
             font-weight: 700;
-            font-size: 13px;
             border: none;
             cursor: pointer;
             background: white;
@@ -1451,14 +1497,17 @@
             render();
         }
 
-        function speak(text, repeat = null) {
+        function speak(text, idx, repeat = null) {
             if (state.speaking || !('speechSynthesis' in window)) return;
 
             const times = repeat || state.repeatCount;
             state.speaking = true;
+            state.speakingIdx = idx;
             state.currentRepeat = 0;
             state.totalRepeat = times;
-            render();
+
+            // 해당 버튼만 업데이트 (전체 render 대신)
+            updateSpeakerButton(idx, true);
 
             const speakOnce = () => {
                 const utterance = new SpeechSynthesisUtterance(text);
@@ -1478,13 +1527,15 @@
                         setTimeout(speakOnce, 300);
                     } else {
                         state.speaking = false;
-                        render();
+                        state.speakingIdx = null;
+                        updateSpeakerButton(idx, false);
                     }
                 };
 
                 utterance.onerror = () => {
                     state.speaking = false;
-                    render();
+                    state.speakingIdx = null;
+                    updateSpeakerButton(idx, false);
                 };
 
                 speechSynthesis.cancel();
@@ -1492,6 +1543,17 @@
             };
 
             speakOnce();
+        }
+
+        function updateSpeakerButton(idx, isActive) {
+            const buttons = document.querySelectorAll('.speak-btn');
+            if (buttons[idx]) {
+                if (isActive) {
+                    buttons[idx].classList.add('loading');
+                } else {
+                    buttons[idx].classList.remove('loading');
+                }
+            }
         }
 
         function toggleReveal(idx) {
@@ -1526,6 +1588,14 @@
 
         function setWeek(w) {
             setDay((w - 1) * 7 + 1);
+        }
+
+        function scrollWeeks(direction) {
+            const container = document.getElementById('week-tabs-container');
+            if (!container) return;
+
+            const scrollAmount = 300; // 스크롤할 픽셀 양
+            container.scrollLeft += direction * scrollAmount;
         }
 
         function changeVoice(voiceName) {
@@ -1587,8 +1657,11 @@
 
             const app = document.getElementById('app');
             app.innerHTML = `
-        <div class="week-tabs">
-          ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(w => {
+        <div class="week-nav-container">
+          <button class="week-nav-arrow left" onclick="scrollWeeks(-1)" id="week-nav-left">‹</button>
+          <button class="week-nav-arrow right" onclick="scrollWeeks(1)" id="week-nav-right">›</button>
+          <div class="week-tabs" id="week-tabs-container">
+            ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(w => {
                 const weekDays = Array.from({ length: 7 }, (_, i) => (w - 1) * 7 + i + 1);
                 const completedCount = weekDays.filter(d => state.completedDays.includes(d)).length;
                 const progress = Math.round((completedCount / 7) * 100);
@@ -1602,6 +1675,7 @@
                 </div>
               </button>`;
             }).join('')}
+          </div>
         </div>
         <div class="card">
           <div class="header">
@@ -1672,7 +1746,7 @@
                       </div>
                       ${isRevealed ? `<p class="sentence-en">${item.en}</p>` : `<button class="reveal-btn">👁 정답 확인하기</button>`}
                     </div>
-                    ${isRevealed ? `<button class="speak-btn ${state.speaking ? 'loading' : ''}" onclick="event.stopPropagation(); speak('${item.en.replace(/'/g, "\\'")}')">🔊</button>` : ''}
+                    ${isRevealed ? `<button class="speak-btn ${state.speakingIdx === idx ? 'loading' : ''}" onclick="event.stopPropagation(); speak('${item.en.replace(/'/g, "\\'")}'  , ${idx})">🔊</button>` : ''}
                   </div>
                 </div>
               `;

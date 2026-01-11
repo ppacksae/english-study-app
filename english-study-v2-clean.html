@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Daily English Practice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f1f5f9;
+            min-height: 100vh;
+            padding: 8px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .week-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            padding: 4px;
+        }
+
+        .week-tab {
+            flex-shrink: 0;
+            padding: 10px 20px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            background: white;
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+
+        .week-tab.active {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .card {
+            background: white;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .header {
+            background: #0f172a;
+            color: white;
+            padding: 24px;
+            position: relative;
+        }
+
+        .header-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #818cf8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .header-tag::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #818cf8;
+            border-radius: 50%;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 900;
+        }
+
+        .week-badge {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 14px;
+            border-radius: 14px;
+        }
+
+        .week-badge span {
+            display: block;
+            font-size: 9px;
+            opacity: 0.6;
+        }
+
+        .week-badge strong {
+            font-size: 16px;
+            font-weight: 900;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 16px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav button {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .nav button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav button:disabled {
+            opacity: 0.2;
+        }
+
+        .nav-center {
+            text-align: center;
+        }
+
+        .nav-center small {
+            font-size: 9px;
+            color: #818cf8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .nav-center h2 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .voice-bar {
+            padding: 16px 24px;
+            background: #f8fafc;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            overflow-x: auto;
+        }
+
+        .voice-label {
+            font-size: 9px;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+
+        .voice-btn {
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .voice-btn.active {
+            background: #0f172a;
+            color: white;
+            border-color: #0f172a;
+        }
+
+        .main {
+            padding: 20px;
+            min-height: 300px;
+        }
+
+        .sentence {
+            padding: 20px;
+            border-radius: 24px;
+            margin-bottom: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .sentence.revealed {
+            background: white;
+            border-color: #eef2ff;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.1);
+        }
+
+        .sentence.hidden {
+            background: #f8fafc;
+            cursor: pointer;
+        }
+
+        .sentence-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .sentence-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            flex-shrink: 0;
+            background: #e2e8f0;
+            color: #64748b;
+        }
+
+        .sentence.revealed .sentence-num {
+            background: #e0e7ff;
+            color: #4f46e5;
+        }
+
+        .sentence-ko {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .sentence.hidden .sentence-ko {
+            color: #1e293b;
+            font-size: 15px;
+        }
+
+        .sentence-en {
+            font-size: 20px;
+            font-weight: 900;
+            color: #0f172a;
+            margin-top: 8px;
+            line-height: 1.3;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .reveal-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 12px;
+            cursor: pointer;
+        }
+
+        .speak-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            border: none;
+            background: #f1f5f9;
+            color: #64748b;
+            font-size: 20px;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-left: auto;
+            transition: all 0.2s;
+        }
+
+        .speak-btn:hover {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .speak-btn.loading {
+            background: #0f172a;
+            color: white;
+        }
+
+        .sentence-content {
+            display: flex;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .sentence-text {
+            flex: 1;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+        }
+
+        .empty-icon {
+            width: 64px;
+            height: 64px;
+            background: #f1f5f9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 24px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 9px;
+            color: #94a3b8;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .error {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .control-bar {
+            padding: 16px 24px;
+            background: #fefce8;
+            border-bottom: 1px solid #fef08a;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .repeat-selector {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .repeat-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #854d0e;
+            margin-right: 4px;
+        }
+
+        .repeat-btn {
+            padding: 6px 12px;
+            border-radius: 12px;
+            border: 1px solid #fde047;
+            background: white;
+            font-size: 11px;
+            font-weight: 600;
+            color: #854d0e;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .repeat-btn.active {
+            background: #854d0e;
+            color: white;
+            border-color: #854d0e;
+        }
+
+        .batch-play-btn {
+            padding: 8px 16px;
+            border-radius: 14px;
+            border: none;
+            background: #4f46e5;
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .batch-play-btn:hover {
+            background: #4338ca;
+        }
+
+        .batch-play-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .speak-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .repeat-count {
+            font-size: 10px;
+            font-weight: 700;
+            color: #4f46e5;
+            background: #eef2ff;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="app"></div>
+
+    <script>
+        const THEMES = ["기본 일상 & 감정", "회사 / 업무 회화", "의견 말하기 / 완곡한 표현", "전화 / 미팅 / 응대", "해외여행 & 실생활", "감정 & 자연스러운 반응", "주간 복습 챌린지"];
+
+        let availableVoices = [];
+        let selectedVoice = null;
+
+        // 음성 로드
+        function loadVoices() {
+            availableVoices = speechSynthesis.getVoices()
+                .filter(v => v.lang.startsWith('en'))
+                .sort((a, b) => {
+                    // 품질 좋은 음성 우선 (Samantha, Karen, Alex 등)
+                    const priority = ['samantha', 'karen', 'alex', 'daniel', 'zira', 'fiona'];
+                    const aScore = priority.findIndex(p => a.name.toLowerCase().includes(p));
+                    const bScore = priority.findIndex(p => b.name.toLowerCase().includes(p));
+                    if (aScore >= 0 && bScore >= 0) return aScore - bScore;
+                    if (aScore >= 0) return -1;
+                    if (bScore >= 0) return 1;
+                    return a.name.localeCompare(b.name);
+                });
+
+            if (availableVoices.length > 0 && !selectedVoice) {
+                selectedVoice = availableVoices[0].name;
+            }
+        }
+
+        // 페이지 로드시 음성 로드
+        if ('speechSynthesis' in window) {
+            loadVoices();
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
+
+        const DATA = {
+            1: [
+                { en: "I'm not sure how to explain it clearly.", ko: "이걸 어떻게 설명해야 할지 잘 모르겠어" },
+                { en: "I didn't expect things to turn out this way.", ko: "이렇게 될 줄은 몰랐어" },
+                { en: "I need some time to think about it.", ko: "좀 생각할 시간이 필요해" },
+                { en: "That's not exactly what I meant.", ko: "내가 말하려던 건 그게 아니야" },
+                { en: "I'm a bit tired, but I'll be fine.", ko: "좀 피곤하긴 한데 괜찮아" },
+                { en: "I feel like I'm forgetting something important.", ko: "뭔가 중요한 걸 잊은 것 같아" },
+                { en: "I'll take care of it as soon as possible.", ko: "최대한 빨리 처리할게" },
+                { en: "I don't really have a strong opinion on that.", ko: "그거에 대해 딱히 의견은 없어" },
+                { en: "It's harder than I thought it would be.", ko: "생각보다 어렵네" },
+                { en: "I guess I'll figure it out eventually.", ko: "결국엔 어떻게든 되겠지" }
+            ],
+            2: [
+                { en: "I'm currently working on a few things at the same time.", ko: "지금 여러 가지를 동시에 하고 있어요" },
+                { en: "I'll get back to you once I have more information.", ko: "조금 더 확인되면 다시 연락드릴게요" },
+                { en: "We might need to adjust the schedule a bit.", ko: "일정 조정이 조금 필요할 것 같아요" },
+                { en: "I don't think that approach will work in the long run.", ko: "그 방식은 장기적으로는 안 맞을 것 같아요" },
+                { en: "Let's focus on what we can control for now.", ko: "지금 우리가 할 수 있는 것에 집중하죠" },
+                { en: "I want to make sure we're on the same page.", ko: "서로 같은 이해를 하고 있는지 확인하고 싶어요" },
+                { en: "There seems to be a misunderstanding.", ko: "오해가 있는 것 같아요" },
+                { en: "I'm not fully convinced this is the best solution.", ko: "이게 최선의 해결책인지는 아직 확신이 안 서요" },
+                { en: "We're running a little behind schedule.", ko: "일정이 조금 밀리고 있어요" },
+                { en: "I'll follow up with you later today.", ko: "오늘 중으로 다시 말씀드릴게요" }
+            ],
+            3: [
+                { en: "From my perspective, this makes the most sense.", ko: "제 입장에서는 이게 가장 합리적이에요" },
+                { en: "I see your point, but I look at it a bit differently.", ko: "무슨 말인지 알겠는데 저는 좀 다르게 봐요" },
+                { en: "I'm not saying you're wrong, but I have some concerns.", ko: "틀렸다는 건 아니고, 좀 걱정되는 부분이 있어요" },
+                { en: "That's one way to look at it, I suppose.", ko: "그렇게 볼 수도 있겠네요" },
+                { en: "I'm open to other ideas if you have any.", ko: "다른 의견이 있으면 들어볼게요" },
+                { en: "I don't feel strongly about it either way.", ko: "딱히 강한 생각은 없어요" },
+                { en: "It depends on the situation, honestly.", ko: "솔직히 상황에 따라 달라요" },
+                { en: "I'd rather not rush into a decision.", ko: "결정을 서두르고 싶진 않아요" },
+                { en: "I think we should take a step back.", ko: "잠깐 한 발 물러서서 볼 필요가 있어요" },
+                { en: "Let's not jump to conclusions yet.", ko: "아직 섣불리 판단하진 말죠" }
+            ],
+            4: [
+                { en: "Sorry, the line is breaking up a bit.", ko: "죄송한데 통화가 좀 끊겨요" },
+                { en: "Could you repeat that one more time?", ko: "한 번만 다시 말씀해 주시겠어요?" },
+                { en: "Let me clarify what I mean.", ko: "제가 무슨 말인지 정리해서 말씀드릴게요" },
+                { en: "I'll send you an email with the details.", ko: "자세한 내용은 이메일로 보내드릴게요" },
+                { en: "Can we discuss this after the meeting?", ko: "이건 회의 끝나고 얘기할까요?" },
+                { en: "I'm afraid I don't have that information right now.", ko: "지금은 그 정보가 없어요" },
+                { en: "Let's move on to the next topic.", ko: "다음 안건으로 넘어가죠" },
+                { en: "I'll check and let you know shortly.", ko: "확인하고 바로 알려드릴게요" },
+                { en: "Thanks for bringing this up.", ko: "이 얘기 꺼내줘서 감사합니다" },
+                { en: "That's a good question.", ko: "좋은 질문이에요" }
+            ],
+            5: [
+                { en: "I'd like to check in, please.", ko: "체크인하고 싶어요" },
+                { en: "Is there a place nearby where I can eat?", ko: "근처에 식사할 곳이 있나요?" },
+                { en: "Could you recommend something popular here?", ko: "여기서 인기 있는 메뉴 추천해 주세요" },
+                { en: "I think there's been a mistake with my order.", ko: "주문이 잘못 나온 것 같아요" },
+                { en: "How long does it usually take?", ko: "보통 얼마나 걸리나요?" },
+                { en: "I'm just looking around for now.", ko: "그냥 둘러보는 중이에요" },
+                { en: "Could you speak a little more slowly?", ko: "조금만 천천히 말씀해 주실 수 있나요?" },
+                { en: "I didn't quite catch that.", ko: "잘 못 들었어요" },
+                { en: "Is this included in the price?", ko: "이게 가격에 포함된 건가요?" },
+                { en: "I really appreciate your help.", ko: "정말 감사합니다" }
+            ],
+            6: [
+                { en: "That's a relief.", ko: "다행이다" },
+                { en: "I'm honestly a bit overwhelmed.", ko: "솔직히 좀 벅차네요" },
+                { en: "This is not what I was hoping for.", ko: "내가 기대하던 건 아니에요" },
+                { en: "I didn't mean to cause any trouble.", ko: "문제를 일으킬 생각은 없었어요" },
+                { en: "It means a lot to me.", ko: "저한테 정말 큰 의미예요" },
+                { en: "I'm getting used to it little by little.", ko: "조금씩 익숙해지고 있어요" },
+                { en: "I wasn't prepared for this.", ko: "이건 예상 못 했어요" },
+                { en: "I need to clear my head.", ko: "머리를 좀 식혀야겠어요" },
+                { en: "That caught me off guard.", ko: "좀 당황했어요" },
+                { en: "I'm glad it worked out in the end.", ko: "결국 잘 돼서 다행이에요" }
+            ],
+            8: [
+                { en: "How has your week been so far?", ko: "이번 주 어떻게 보내고 있어?" },
+                { en: "I was wondering if you could help me with this.", ko: "이것 좀 도와줄 수 있을까 해서요" },
+                { en: "I haven't been feeling very well lately.", ko: "요즘 몸 상태가 별로 안 좋아" },
+                { en: "It looks like it's going to rain today.", ko: "오늘 비가 올 것 같네" },
+                { en: "I'm looking forward to the weekend.", ko: "주말이 정말 기다려져" },
+                { en: "I can't believe it's already February.", ko: "벌써 2월이라니 믿기지가 않아" },
+                { en: "I'm planning to go for a run later.", ko: "나중에 조깅하러 갈 계획이야" },
+                { en: "Do you happen to know where the station is?", ko: "혹시 역이 어디 있는지 아세요?" },
+                { en: "I'm still trying to get used to my new job.", ko: "아직 새 직장에 적응하려고 노력 중이야" },
+                { en: "It's been a while since we last talked.", ko: "우리 마지막으로 얘기한 지 꽤 됐네" }
+            ],
+            9: [
+                { en: "Let's touch base tomorrow morning.", ko: "내일 아침에 다시 연락합시다" },
+                { en: "I'll take responsibility for this project.", ko: "이 프로젝트는 제가 책임지겠습니다" },
+                { en: "Can we push the meeting back to 3 PM?", ko: "회의를 오후 3시로 미룰 수 있을까요?" },
+                { en: "I'll send out the meeting minutes shortly.", ko: "곧 회의록을 보내드릴게요" },
+                { en: "We need to come up with a better idea.", ko: "더 좋은 아이디어를 생각해내야 해요" },
+                { en: "I'm out of the office for the rest of the day.", ko: "오늘 남은 시간은 외근입니다" },
+                { en: "The deadline is approaching fast.", ko: "마감 기한이 빠르게 다가오고 있어요" },
+                { en: "I'll double-check the figures and let you know.", ko: "수치를 다시 확인하고 알려드릴게요" },
+                { en: "Let's wrap this up for today.", ko: "오늘은 이만 마무리합시다" },
+                { en: "I'm cc'ing my manager on this email.", ko: "이 이메일에 저희 팀장님을 참조에 넣었습니다" }
+            ],
+            10: [
+                { en: "To be honest, I'm not comfortable with this.", ko: "솔직히 말하면, 이건 좀 불편하네요" },
+                { en: "I'd prefer to handle it this way instead.", ko: "대신 이런 방식으로 처리하고 싶어요" },
+                { en: "Correct me if I'm wrong, but isn't it Tuesday?", ko: "제가 틀렸다면 말씀해 주세요, 오늘 화요일 아닌가요?" },
+                { en: "I'd like to hear more about your thoughts.", ko: "당신의 생각을 더 듣고 싶어요" },
+                { en: "It's not exactly a priority at the moment.", ko: "현재로선 딱히 우선순위가 아니에요" },
+                { en: "I appreciate your input, but I have a concern.", ko: "의견은 감사하지만, 걱정되는 부분이 있어요" },
+                { en: "Let's look at this from another angle.", ko: "다른 각도에서 한번 살펴봅시다" },
+                { en: "I'm not sure if I can commit to that yet.", ko: "아직 그것에 확답을 드릴 수 있을지 모르겠어요" },
+                { en: "That's a valid point, but there's a risk.", ko: "타당한 지적이지만, 리스크가 있네요" },
+                { en: "I'll take your suggestion into consideration.", ko: "당신의 제안을 고려해 보겠습니다" }
+            ],
+            11: [
+                { en: "Could you put me through to the marketing department?", ko: "마케팅 부서로 연결해 주시겠어요?" },
+                { en: "The connection is quite unstable.", ko: "연결이 꽤 불안정하네요" },
+                { en: "I'm sorry, I'm currently on another call.", ko: "죄송하지만 지금 다른 전화를 받는 중입니다" },
+                { en: "Let's jump straight into the main topic.", ko: "바로 본론으로 들어갑시다" },
+                { en: "Is everyone present for the meeting?", ko: "다들 회의에 참석했나요?" },
+                { en: "I'll share my screen with you now.", ko: "지금 제 화면을 공유해 드릴게요" },
+                { en: "You're on mute, we can't hear you.", ko: "음소거 되어 있어요, 목소리가 안 들려요" },
+                { en: "Let's summarize what we've discussed so far.", ko: "지금까지 논의한 내용을 요약해 봅시다" },
+                { en: "Who is in charge of this task?", ko: "이 업무 담당자가 누구죠?" },
+                { en: "I'll follow up with an email.", ko: "이메일로 후속 조치를 취하겠습니다" }
+            ],
+            12: [
+                { en: "Is there a pharmacy that stays open late?", ko: "늦게까지 하는 약국이 있나요?" },
+                { en: "Could you take a photo of us, please?", ko: "저희 사진 좀 찍어주실 수 있나요?" },
+                { en: "I'd like to exchange this for a smaller size.", ko: "이걸 더 작은 사이즈로 바꾸고 싶어요" },
+                { en: "Does this bus go to the city center?", ko: "이 버스가 시내로 가나요?" },
+                { en: "How much is the fare to the airport?", ko: "공항까지 요금이 얼마인가요?" },
+                { en: "I'm looking for a gift for my friend.", ko: "친구 줄 선물을 찾고 있어요" },
+                { en: "Keep the change, please.", ko: "잔돈은 가지세요" },
+                { en: "Is there a Wi-Fi password for this place?", ko: "여기 와이파이 비밀번호가 있나요?" },
+                { en: "I think I left my bag in the taxi.", ko: "택시에 가방을 두고 내린 것 같아요" },
+                { en: "Where can I find the nearest ATM?", ko: "가장 가까운 ATM이 어디 있나요?" }
+            ],
+            13: [
+                { en: "I'm so proud of what you've achieved.", ko: "당신이 이뤄낸 성과가 정말 자랑스러워요" },
+                { en: "I'm feeling a bit nervous about the presentation.", ko: "발표 때문에 좀 긴장되네요" },
+                { en: "It's not as bad as I expected.", ko: "생각했던 것만큼 나쁘진 않네" },
+                { en: "I'm so glad we cleared that up.", ko: "오해가 풀려서 다행이에요" },
+                { en: "That's exactly what I needed to hear.", ko: "딱 듣고 싶었던 말이네요" },
+                { en: "I'm sorry to hear that things are difficult.", ko: "상황이 힘들다니 유감입니다" },
+                { en: "Don't beat yourself up over it.", ko: "그것 때문에 너무 자책하지 마세요" },
+                { en: "I'll try my best to keep up.", ko: "따라가기 위해 최선을 다할게요" },
+                { en: "That sounds like a plan.", ko: "좋은 생각인 것 같아요" },
+                { en: "I'm really impressed by your dedication.", ko: "당신의 헌신에 정말 감명받았습니다" }
+            ],
+            15: [
+                { en: "I've been trying to cut back on caffeine lately.", ko: "요즘 카페인을 좀 줄이려고 노력 중이에요" },
+                { en: "It takes about forty minutes by subway.", ko: "지하철로 40분 정도 걸려요" },
+                { en: "I'm sorry, I didn't mean to keep you waiting.", ko: "미안해요, 기다리게 할 생각은 없었어요" },
+                { en: "Could you tell me more about your background?", ko: "당신의 배경에 대해 좀 더 말씀해 주시겠어요?" },
+                { en: "I'm still weighing my options at this point.", ko: "지금 시점에서는 옵션을 조율 중이에요" },
+                { en: "That's a bit out of my budget, to be honest.", ko: "솔직히 그건 제 예산을 좀 벗어나네요" },
+                { en: "I'll be working from home this Friday.", ko: "이번 주 금요일은 재택근무입니다" },
+                { en: "I accidentally deleted the file you sent me.", ko: "보내주신 파일을 실수로 삭제했어요" },
+                { en: "Let me know if there's anything else I can do.", ko: "제가 더 할 수 있는 게 있다면 알려주세요" },
+                { en: "I'm having a hard time focusing today.", ko: "오늘은 집중하기가 좀 힘드네요" }
+            ],
+            16: [
+                { en: "We need to prioritize the most urgent tasks.", ko: "가장 시급한 업무부터 우선순위를 정해야 해요" },
+                { en: "I'll provide you with a detailed update by noon.", ko: "정오까지 자세한 업데이트를 드릴게요" },
+                { en: "Let's brainstorm some ideas for the marketing campaign.", ko: "마케팅 캠페인을 위한 아이디어를 짜봅시다" },
+                { en: "I'm not sure if this is within our scope.", ko: "이게 우리 업무 범위 내에 있는지 모르겠네요" },
+                { en: "We're seeing a steady increase in user engagement.", ko: "사용자 참여가 꾸준히 증가하고 있어요" },
+                { en: "Can we schedule a quick sync for tomorrow?", ko: "내일 잠깐 상황 공유 회의를 잡을 수 있을까요?" },
+                { en: "I'll take a look at the proposal and give feedback.", ko: "제안서를 보고 피드백을 드릴게요" },
+                { en: "We should avoid making the same mistake again.", ko: "같은 실수를 반복하지 않도록 해야 해요" },
+                { en: "Is there any room for negotiation on the price?", ko: "가격 협상의 여지가 있을까요?" },
+                { en: "I'll coordinate with the other teams involved.", ko: "관련된 다른 팀들과 조율하겠습니다" }
+            ],
+            17: [
+                { en: "If I were in your shoes, I'd take the offer.", ko: "내가 당신 입장이라면 그 제안을 수락할 거예요" },
+                { en: "It's not as simple as it sounds.", ko: "듣는 것처럼 그렇게 간단하지 않아요" },
+                { en: "I strongly disagree with the current proposal.", ko: "현재 제안에 강하게 반대합니다" },
+                { en: "Could you clarify the reasoning behind this?", ko: "이 결정의 이유를 명확히 해주실 수 있나요?" },
+                { en: "I'm leaning towards the second option.", ko: "두 번째 옵션 쪽으로 마음이 기우네요" },
+                { en: "That's a fair point, but let's consider the cost.", ko: "일리 있는 말이지만, 비용도 고려해 봅시다" },
+                { en: "I'd like to hear everyone's opinion on this.", ko: "이 건에 대해 모든 분의 의견을 듣고 싶어요" },
+                { en: "There might be a better way to handle this.", ko: "이걸 처리하는 더 좋은 방법이 있을지도 몰라요" },
+                { en: "Let's not overcomplicate things.", ko: "상황을 너무 복잡하게 만들지 맙시다" },
+                { en: "I'm convinced that this is the right path.", ko: "이것이 옳은 길이라고 확신합니다" }
+            ],
+            18: [
+                { en: "I'd like to open the floor for any questions.", ko: "질문하실 분들께 마이크를 넘기겠습니다" },
+                { en: "Can we go back to the previous slide for a second?", ko: "이전 슬라이드로 잠깐 돌아갈 수 있을까요?" },
+                { en: "Let's try to stick to the agenda.", ko: "안건에서 벗어나지 않도록 합시다" },
+                { en: "I'll share the recording after the session.", ko: "세션 후에 녹화본을 공유해 드릴게요" },
+                { en: "I'm sorry, I missed that. Could you repeat it?", ko: "죄송해요, 못 들었어요. 다시 말씀해 주시겠어요?" },
+                { en: "Let's dive deeper into the technical aspects.", ko: "기술적인 측면을 더 깊이 파헤쳐 봅시다" },
+                { en: "Does anyone want to add anything else?", ko: "더 추가하고 싶으신 분 계신가요?" },
+                { en: "I'll be facilitating today's discussion.", ko: "오늘 토론의 진행을 맡게 되었습니다" },
+                { en: "We're running out of time, so let's wrap up.", ko: "시간이 다 되어 가니 마무리합시다" },
+                { en: "Thanks for your active participation today.", ko: "오늘 적극적인 참여에 감사드립니다" }
+            ],
+            19: [
+                { en: "Could you recommend a good local restaurant?", ko: "현지 맛집 좀 추천해 주실 수 있나요?" },
+                { en: "Is it safe to walk around here at night?", ko: "밤에 여기 돌아다녀도 안전한가요?" },
+                { en: "I'd like to book a tour for tomorrow morning.", ko: "내일 아침 투어를 예약하고 싶어요" },
+                { en: "Do you have this in a different color?", ko: "이거 다른 색상도 있나요?" },
+                { en: "What's the best way to get to the airport?", ko: "공항으로 가는 가장 좋은 방법이 뭐예요?" },
+                { en: "I need to report a lost passport.", ko: "여권 분실 신고를 해야 해요" },
+                { en: "Could I have some extra towels, please?", ko: "수건 좀 더 주실 수 있나요?" },
+                { en: "I'm allergic to peanuts, so please be careful.", ko: "땅콩 알레르기가 있으니 주의해 주세요" },
+                { en: "Is service charge included in the bill?", ko: "계산서에 서비스 차지가 포함되어 있나요?" },
+                { en: "I'll pay by credit card.", ko: "신용카드로 결제할게요" }
+            ],
+            20: [
+                { en: "I'm so relieved that everything is settled.", ko: "모든 게 해결되어서 정말 다행이에요" },
+                { en: "That was much easier than I expected.", ko: "생각보다 훨씬 쉬웠어요" },
+                { en: "I'm really sorry for the inconvenience caused.", ko: "불편을 드려 정말 죄송합니다" },
+                { en: "I can't believe we pulled it off!", ko: "우리가 해냈다니 믿기지가 않아요!" },
+                { en: "I'm so grateful for your support and guidance.", ko: "당신의 지원과 지도에 정말 감사드려요" },
+                { en: "It's not your fault, so don't worry about it.", ko: "당신 잘못이 아니니 걱정하지 마세요" },
+                { en: "I'm really looking forward to our next project.", ko: "다음 프로젝트가 정말 기대됩니다" },
+                { en: "That caught me completely by surprise.", ko: "정말 깜짝 놀랐어요" },
+                { en: "I'm so impressed by your professionalism.", ko: "당신의 전문성에 정말 깊은 인상을 받았어요" },
+                { en: "Let's celebrate our success together.", ko: "우리의 성공을 함께 축하합시다" }
+            ],
+            22: [
+                { en: "I've been reflecting on our progress lately.", ko: "요즘 우리의 진척 상황에 대해 생각해보는 중이에요" },
+                { en: "It's crucial that we stay on top of things.", ko: "상황을 계속 파악하고 있는 게 아주 중요해요" },
+                { en: "I'm trying to find a better work-life balance.", ko: "워라밸을 더 잘 맞추려고 노력 중이에요" },
+                { en: "I'll make sure to double-check everything.", ko: "모든 걸 다시 한번 꼭 확인하겠습니다" },
+                { en: "It's been a bit of a rollercoaster lately.", ko: "요즘 좀 파란만장했네요" },
+                { en: "I'm slowly getting back into my routine.", ko: "조금씩 다시 일상으로 돌아가는 중이에요" },
+                { en: "I'd like to get your feedback on this draft.", ko: "이 초안에 대한 당신의 피드백을 듣고 싶어요" },
+                { en: "I'm confident that we can meet the deadline.", ko: "우리가 마감 기한을 맞출 수 거라 확신해요" },
+                { en: "Let's keep each other in the loop.", ko: "서로 상황을 계속 공유합시다" },
+                { en: "I'm really happy with how things are going.", ko: "일이 진행되는 방식이 아주 마음에 들어요" }
+            ],
+            23: [
+                { en: "We need to align our goals for the next quarter.", ko: "다음 분기를 위해 우리의 목표를 조율해야 해요" },
+                { en: "I'll take the lead on this initiative.", ko: "이 일은 제가 주도적으로 추진하겠습니다" },
+                { en: "Let's leverage our strengths to win the deal.", ko: "계약을 따내기 위해 우리의 강점을 활용합시다" },
+                { en: "I'm open to constructive criticism.", ko: "건설적인 비판은 언제든 환영입니다" },
+                { en: "We should focus on long-term sustainability.", ko: "장기적인 지속 가능성에 집중해야 해요" },
+                { en: "I'll follow up with a formal proposal.", ko: "정식 제안서로 후속 조치를 취하겠습니다" },
+                { en: "It's important to manage expectations early on.", ko: "초기에 기대치를 관리하는 것이 중요해요" },
+                { en: "I'll make sure to address all your concerns.", ko: "모든 걱정하시는 부분들을 꼭 짚고 넘어가겠습니다" },
+                { en: "Let's explore potential partnership opportunities.", ko: "잠재적인 파트너십 기회를 탐색해 봅시다" },
+                { en: "We're on the right track to achieve our KPIs.", ko: "KPI 달성을 위한 궤도에 잘 올라와 있어요" }
+            ],
+            24: [
+                { en: "I appreciate your patience while we work this out.", ko: "이걸 해결하는 동안 기다려 주셔서 감사합니다" },
+                { en: "I'd like to propose an alternative solution.", ko: "대안적인 해결책을 제안하고 싶습니다" },
+                { en: "It's not exactly what I had in mind.", ko: "제가 생각했던 것과는 좀 다르네요" },
+                { en: "Let's try to find common ground here.", ko: "여기서 공통점을 찾아보도록 합시다" },
+                { en: "I'm not entirely convinced by that argument.", ko: "그 논리에는 완전히 납득이 가지 않네요" },
+                { en: "We should take a more cautious approach.", ko: "좀 더 신중한 접근 방식을 취해야 합니다" },
+                { en: "That's a valid concern, let's address it now.", ko: "타당한 걱정입니다, 지금 바로 논의해보죠" },
+                { en: "I'll defer to your expertise on this matter.", ko: "이 문제에 대해서는 당신의 전문 지식에 따르겠습니다" },
+                { en: "Let's weigh the pros and cons before deciding.", ko: "결정하기 전에 장단점을 따져봅시다" },
+                { en: "I'm optimistic about the outcome.", ko: "결과에 대해 낙관적입니다" }
+            ],
+            25: [
+                { en: "I'll provide a high-level overview of the project.", ko: "프로젝트에 대한 전반적인 개요를 말씀드릴게요" },
+                { en: "Could you elaborate on that specific point?", ko: "그 특정 부분에 대해 좀 더 상세히 설명해 주시겠어요?" },
+                { en: "I'd like to highlight some key achievements.", ko: "주요 성과 몇 가지를 강조하고 싶습니다" },
+                { en: "Let's keep the discussion focused on the main goal.", ko: "주요 목표에 집중해서 논의를 이어갑시다" },
+                { en: "I'll be happy to answer any questions you have.", ko: "궁금하신 점은 무엇이든 답변해 드리겠습니다" },
+                { en: "We're running slightly behind, so I'll be brief.", ko: "시간이 조금 지체되었으니 짧게 말씀드릴게요" },
+                { en: "I'll circulate the meeting notes by EOD.", ko: "오늘 업무 종료 전까지 회의 노트를 돌리겠습니다" },
+                { en: "Let's set up a follow-up meeting for next week.", ko: "다음 주에 후속 회의를 잡읍시다" },
+                { en: "I'd like to thank everyone for their time today.", ko: "오늘 시간을 내주신 모든 분께 감사드립니다" },
+                { en: "I look forward to hearing your feedback.", ko: "여러분의 피드백을 기다리겠습니다" }
+            ],
+            26: [
+                { en: "I'd like to upgrade my room to a suite, please.", ko: "방을 스위트룸으로 업그레이드하고 싶어요" },
+                { en: "Is there a shuttle service to the train station?", ko: "기차역까지 가는 셔틀 서비스가 있나요?" },
+                { en: "I'm looking for a place with authentic local food.", ko: "진짜 현지 음식을 파는 곳을 찾고 있어요" },
+                { en: "Could you tell me how to use the self-checkout?", ko: "셀프 계산대 사용법 좀 알려주실 수 있나요?" },
+                { en: "I'd like to cancel my reservation, please.", ko: "예약을 취소하고 싶습니다" },
+                { en: "Is it possible to get a late check-out?", ko: "레이트 체크아웃이 가능할까요?" },
+                { en: "I'm lost, could you show me where I am on the map?", ko: "길을 잃었어요, 지도에서 제 위치 좀 알려주세요" },
+                { en: "I'd like to buy a local SIM card.", ko: "현지 유심 카드를 사고 싶어요" },
+                { en: "Could you call a taxi for me, please?", ko: "택시 좀 불러주실 수 있나요?" },
+                { en: "Thanks for making my stay so enjoyable.", ko: "덕분에 아주 즐겁게 머물다 갑니다" }
+            ],
+            27: [
+                { en: "I'm genuinely impressed by how you handled that.", ko: "그걸 처리하는 모습에 정말 감명받았어요" },
+                { en: "I'm so sorry, I totally spaced out for a second.", ko: "미안해요, 잠깐 멍 때렸어요" },
+                { en: "That's a huge relief, I was so worried.", ko: "정말 다행이에요, 걱정 많이 했거든요" },
+                { en: "I can't thank you enough for your kindness.", ko: "당신의 친절에 어떻게 감사를 표해야 할지 모르겠네요" },
+                { en: "I'm really excited about what's coming next.", ko: "다음에 일어날 일이 정말 기대됩니다" },
+                { en: "Don't let it get to you, it happens to everyone.", ko: "너무 신경 쓰지 마세요, 누구에게나 일어나는 일이에요" },
+                { en: "I'm so glad we could finally make this happen.", ko: "드디어 이걸 해낼 수 있어서 정말 기뻐요" },
+                { en: "That's a very thoughtful suggestion, thank you.", ko: "정말 사려 깊은 제안이네요, 감사합니다" },
+                { en: "I'm honored to be part of this amazing team.", ko: "이 멋진 팀의 일원이 되어 영광입니다" },
+                { en: "I'm positive that we'll succeed together.", ko: "우리가 함께 성공할 것이라고 확신합니다" }
+            ]
+        };
+
+        let state = { day: 1, revealed: [], speaking: false, repeatCount: 1, batchPlaying: false, reviewSentences: [] };
+
+        function stopSpeaking() {
+            speechSynthesis.cancel();
+            state.speaking = false;
+            state.batchPlaying = false;
+            render();
+        }
+
+        function speak(text, repeat = null) {
+            if (state.speaking || !('speechSynthesis' in window)) return;
+
+            const times = repeat || state.repeatCount;
+            state.speaking = true;
+            state.currentRepeat = 0;
+            state.totalRepeat = times;
+            render();
+
+            const speakOnce = () => {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.85;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
+
+                if (selectedVoice) {
+                    const voice = availableVoices.find(v => v.name === selectedVoice);
+                    if (voice) utterance.voice = voice;
+                }
+
+                utterance.onend = () => {
+                    state.currentRepeat++;
+                    if (state.currentRepeat < state.totalRepeat) {
+                        setTimeout(speakOnce, 300);
+                    } else {
+                        state.speaking = false;
+                        render();
+                    }
+                };
+
+                utterance.onerror = () => {
+                    state.speaking = false;
+                    render();
+                };
+
+                speechSynthesis.cancel();
+                speechSynthesis.speak(utterance);
+            };
+
+            speakOnce();
+        }
+
+        function toggleReveal(idx) {
+            if (state.revealed.includes(idx)) {
+                state.revealed = state.revealed.filter(i => i !== idx);
+            } else {
+                state.revealed.push(idx);
+            }
+            render();
+        }
+
+        function setDay(d) {
+            if (d < 1 || d > 28) return;
+            state.day = d;
+            state.revealed = [];
+
+            // 복습 날짜면 데이터를 미리 생성해서 저장
+            if (d % 7 === 0) {
+                const weekStart = d - 6;
+                let all = [];
+                for (let i = weekStart; i < d; i++) {
+                    if (DATA[i]) all = [...all, ...DATA[i]];
+                }
+                state.reviewSentences = all.sort(() => 0.5 - Math.random()).slice(0, 10);
+            } else {
+                state.reviewSentences = [];
+            }
+
+            render();
+        }
+
+        function setWeek(w) {
+            setDay((w - 1) * 7 + 1);
+        }
+
+        function changeVoice(voiceName) {
+            selectedVoice = voiceName;
+            render();
+        }
+
+        function setRepeatCount(count) {
+            state.repeatCount = count;
+            render();
+        }
+
+        async function batchPlay(startIdx, endIdx) {
+            if (state.batchPlaying || !('speechSynthesis' in window)) return;
+
+            const isReview = state.day % 7 === 0;
+            // 복습 날짜면 state에 저장된 데이터 사용
+            let sentences = isReview ? state.reviewSentences : (DATA[state.day] || []);
+
+            state.batchPlaying = true;
+            render();
+
+            for (let i = startIdx; i <= endIdx && i < sentences.length; i++) {
+                if (!state.batchPlaying) break; // 정지 버튼 클릭 시 중단
+
+                await new Promise((resolve) => {
+                    const utterance = new SpeechSynthesisUtterance(sentences[i].en);
+                    utterance.lang = 'en-US';
+                    utterance.rate = 0.85;
+                    utterance.pitch = 1.0;
+
+                    if (selectedVoice) {
+                        const voice = availableVoices.find(v => v.name === selectedVoice);
+                        if (voice) utterance.voice = voice;
+                    }
+
+                    utterance.onend = () => {
+                        setTimeout(resolve, 800);
+                    };
+                    utterance.onerror = resolve;
+
+                    speechSynthesis.cancel();
+                    speechSynthesis.speak(utterance);
+                });
+            }
+
+            state.batchPlaying = false;
+            render();
+        }
+
+        function render() {
+            const weekNum = Math.ceil(state.day / 7);
+            const dayInWeek = (state.day - 1) % 7;
+            const isReview = state.day % 7 === 0;
+
+            // 복습 날짜면 state에 저장된 데이터 사용
+            let sentences = isReview ? state.reviewSentences : (DATA[state.day] || []);
+
+            const app = document.getElementById('app');
+            app.innerHTML = `
+        <div class="week-tabs">
+          ${[1, 2, 3, 4].map(w => `<button class="week-tab ${weekNum === w ? 'active' : ''}" onclick="setWeek(${w})">WEEK ${w}</button>`).join('')}
+        </div>
+        <div class="card">
+          <div class="header">
+            <div class="header-tag">Month 01: The Foundation</div>
+            <h1>DAY ${state.day}</h1>
+            <div class="week-badge"><span>Phase</span><strong>WEEK ${weekNum}</strong></div>
+            <div class="nav">
+              <button onclick="setDay(${state.day - 1})" ${state.day === 1 ? 'disabled' : ''}>‹</button>
+              <div class="nav-center">
+                <small>Today's Topic</small>
+                <h2>${THEMES[dayInWeek] || "Review Challenge"}</h2>
+              </div>
+              <button onclick="setDay(${state.day + 1})" ${state.day === 28 ? 'disabled' : ''}>›</button>
+            </div>
+          </div>
+          <div class="voice-bar">
+            <div class="voice-label">🎤 Voice</div>
+            ${availableVoices.slice(0, 6).map(v => `
+              <button class="voice-btn ${selectedVoice === v.name ? 'active' : ''}" 
+                      onclick="changeVoice('${v.name}')">
+                ${v.name.split(' ')[0]}
+              </button>
+            `).join('')}
+          </div>
+          <div class="control-bar">
+            <div class="repeat-selector">
+              <span class="repeat-label">🔁 반복</span>
+              ${[1, 3, 5, 10].map(n => `
+                <button class="repeat-btn ${state.repeatCount === n ? 'active' : ''}" 
+                        onclick="setRepeatCount(${n})">
+                  ${n}회
+                </button>
+              `).join('')}
+            </div>
+            ${(state.speaking || state.batchPlaying) ? `
+              <button class="batch-play-btn" 
+                      onclick="stopSpeaking()" 
+                      style="background: #dc2626;">
+                ⏹️ 정지
+              </button>
+            ` : ''}
+            <button class="batch-play-btn" 
+                    onclick="batchPlay(0, 4)" 
+                    ${state.batchPlaying || state.speaking ? 'disabled' : ''}>
+              ▶️ 1-5번
+            </button>
+            <button class="batch-play-btn" 
+                    onclick="batchPlay(5, 9)" 
+                    ${state.batchPlaying || state.speaking ? 'disabled' : ''}>
+              ▶️ 6-10번
+            </button>
+            <button class="batch-play-btn" 
+                    onclick="batchPlay(0, 9)" 
+                    ${state.batchPlaying || state.speaking ? 'disabled' : ''}>
+              ▶️ 전체
+            </button>
+          </div>
+          <main class="main">
+            ${sentences.length ? sentences.map((item, idx) => {
+                const isRevealed = !isReview || state.revealed.includes(idx);
+                return `
+                <div class="sentence ${isRevealed ? 'revealed' : 'hidden'}" ${!isRevealed ? `onclick="toggleReveal(${idx})"` : ''}>
+                  <div class="sentence-content">
+                    <div class="sentence-text">
+                      <div class="sentence-header">
+                        <span class="sentence-num">${idx + 1}</span>
+                        <p class="sentence-ko">${item.ko}</p>
+                      </div>
+                      ${isRevealed ? `<p class="sentence-en">${item.en}</p>` : `<button class="reveal-btn">👁 정답 확인하기</button>`}
+                    </div>
+                    ${isRevealed ? `<button class="speak-btn ${state.speaking ? 'loading' : ''}" onclick="event.stopPropagation(); speak('${item.en.replace(/'/g, "\\'")}')">🔊</button>` : ''}
+                  </div>
+                </div>
+              `;
+            }).join('') : `<div class="empty"><div class="empty-icon">📚</div><p>해당 날짜의 학습 데이터가 없습니다.</p></div>`}
+          </main>
+        </div>
+        <div class="footer">Daily English Practice App • Month 1 Curriculum</div>
+      `;
+        }
+
+        render();
+    </script>
+</body>
+
+</html>
