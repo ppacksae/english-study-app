@@ -463,18 +463,30 @@
 
         // 음성 로드
         function loadVoices() {
-            availableVoices = speechSynthesis.getVoices()
-                .filter(v => v.lang.startsWith('en'))
-                .sort((a, b) => {
-                    // 품질 좋은 음성 우선 (Samantha, Karen, Alex 등)
-                    const priority = ['samantha', 'karen', 'alex', 'daniel', 'zira', 'fiona'];
-                    const aScore = priority.findIndex(p => a.name.toLowerCase().includes(p));
-                    const bScore = priority.findIndex(p => b.name.toLowerCase().includes(p));
-                    if (aScore >= 0 && bScore >= 0) return aScore - bScore;
-                    if (aScore >= 0) return -1;
-                    if (bScore >= 0) return 1;
-                    return a.name.localeCompare(b.name);
-                });
+            const voices = speechSynthesis.getVoices()
+                .filter(v => v.lang.startsWith('en'));
+
+            // 중복 제거 (같은 이름의 음성이 여러 개 있을 수 있음)
+            const uniqueVoices = [];
+            const seenNames = new Set();
+
+            voices.forEach(v => {
+                if (!seenNames.has(v.name)) {
+                    seenNames.add(v.name);
+                    uniqueVoices.push(v);
+                }
+            });
+
+            // 우선순위 정렬
+            availableVoices = uniqueVoices.sort((a, b) => {
+                const priority = ['samantha', 'karen', 'alex', 'daniel', 'zira', 'fiona'];
+                const aScore = priority.findIndex(p => a.name.toLowerCase().includes(p));
+                const bScore = priority.findIndex(p => b.name.toLowerCase().includes(p));
+                if (aScore >= 0 && bScore >= 0) return aScore - bScore;
+                if (aScore >= 0) return -1;
+                if (bScore >= 0) return 1;
+                return a.name.localeCompare(b.name);
+            });
 
             if (availableVoices.length > 0 && !selectedVoice) {
                 selectedVoice = availableVoices[0].name;
