@@ -1556,7 +1556,7 @@
         };
 
         const STORAGE_KEY = 'english-study-progress';
-        let state = { day: 1, revealed: [], speaking: false, repeatCount: 1, repeatMode: 'sentence', batchPlaying: false, currentPlayingIdx: null, reviewSentences: [], completedDays: [], lastDay: 1 };
+        let state = { day: 1, revealed: [], speaking: false, repeatCount: 1, repeatMode: 'sentence', batchPlaying: false, currentPlayingIdx: null, challengeMode: false, reviewSentences: [], completedDays: [], lastDay: 1 };
 
         function loadProgress() {
             try {
@@ -1594,6 +1594,15 @@
             render();
         }
 
+        function toggleChallengeMode() {
+            state.challengeMode = !state.challengeMode;
+            // Reset revealed sentences when entering challenge mode
+            if (state.challengeMode) {
+                state.revealed = [];
+            }
+            render();
+        }
+
         loadProgress();
 
         function stopSpeaking() {
@@ -1612,8 +1621,8 @@
             state.currentRepeat = 0;
             state.totalRepeat = times;
 
-            // Re-render to show stop button in control bar
-            render();
+            // Update only the control bar to show stop button
+            updateControlBar();
 
             const speakOnce = () => {
                 const utterance = new SpeechSynthesisUtterance(text);
@@ -1635,8 +1644,8 @@
                         state.speaking = false;
                         state.speakingIdx = null;
                         updateSpeakerButton(idx, false);
-                        // Re-render to hide stop button
-                        render();
+                        // Update only control bar
+                        updateControlBar();
                     }
                 };
 
@@ -1644,7 +1653,7 @@
                     state.speaking = false;
                     state.speakingIdx = null;
                     updateSpeakerButton(idx, false);
-                    render();
+                    updateControlBar();
                 };
 
                 speechSynthesis.cancel();
@@ -1828,6 +1837,40 @@
             }
         }
 
+        function updateControlBar() {
+            // Update only the control bar to show/hide stop button
+            const controlBar = document.querySelector('.control-bar');
+            if (!controlBar) return;
+            
+            // Re-render only control bar buttons
+            const stopButtonHtml = (state.speaking || state.batchPlaying) ? `
+              <button class="batch-play-btn stop" 
+                      onclick="stopSpeaking()">
+                ⏹ 정지
+              </button>
+            ` : '';
+            
+            const playButtonsHtml = `
+            <button class="batch-play-btn" 
+                    onclick="batchPlay(0, 4)" 
+                    ${state.batchPlaying || state.speaking ? 'disabled' : ''}>
+              ▶️ 1-5
+            </button>
+            <button class="batch-play-btn" 
+                    onclick="batchPlay(5, 9)" 
+                    ${state.batchPlaying || state.speaking ? 'disabled' : ''}>
+              ▶️ 6-10
+            </button>
+            <button class="batch-play-btn" 
+                    onclick="batchPlay(0, 9)" 
+                    ${state.batchPlaying || state.speaking ? 'disabled' : ''}>
+              ▶️ 전체
+            </button>
+            `;
+            
+            controlBar.innerHTML = stopButtonHtml + playButtonsHtml;
+        }
+
         function render() {
             const weekNum = Math.ceil(state.day / 7);
             const dayInWeek = (state.day - 1) % 7;
@@ -1934,7 +1977,7 @@
           </div>
           <main class="main">
             ${sentences.length ? sentences.map((item, idx) => {
-                const isRevealed = !isReview || state.revealed.includes(idx);
+                const isRevealed = state.challengeMode ? state.revealed.includes(idx) : (!isReview || state.revealed.includes(idx));
                 return `
                 <div class="sentence ${isRevealed ? 'revealed' : 'hidden'}" data-sentence-idx="${idx}" ${!isRevealed ? `onclick="toggleReveal(${idx})"` : ''}>
                   <div class="sentence-content">
@@ -1950,7 +1993,22 @@
                 </div>
               `;
             }).join('') : `<div class="empty"><div class="empty-icon">📚</div><p>해당 날짜의 학습 데이터가 없습니다.</p></div>`}
-            <div style="margin-top: 30px; text-align: center; padding-bottom: 20px;">
+            <div style="margin-top: 30px; text-align: center; padding-bottom: 20px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                <button onclick="toggleChallengeMode()" 
+                    style="
+                        background: ${state.challengeMode ? '#f59e0b' : 'white'}; 
+                        color: ${state.challengeMode ? 'white' : '#92400e'};
+                        border: 2px solid #f59e0b;
+                        padding: 12px 24px;
+                        border-radius: 16px;
+                        font-size: 13px;
+                        font-weight: 700;
+                        cursor: pointer;
+                        box-shadow: ${state.challengeMode ? '0 4px 12px rgba(245, 158, 11, 0.3)' : '0 2px 4px rgba(0,0,0,0.05)'};
+                        transition: all 0.3s;
+                    ">
+                    ${state.challengeMode ? '📝 챌린지 ON' : '💪 챌린지 모드'}
+                </button>
                 <button onclick="toggleDayComplete()" 
                     style="
                         background: ${isComplete ? '#22c55e' : '#e2e8f0'}; 
