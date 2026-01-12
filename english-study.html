@@ -495,6 +495,56 @@
             padding: 4px 8px;
             border-radius: 8px;
         }
+
+        .mode-selector {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin-left: 8px;
+        }
+
+        .mode-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #854d0e;
+            margin-right: 4px;
+        }
+
+        .mode-btn {
+            padding: 6px 12px;
+            border-radius: 12px;
+            border: 1px solid #fde047;
+            background: white;
+            font-size: 11px;
+            font-weight: 600;
+            color: #854d0e;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: #854d0e;
+            color: white;
+            border-color: #854d0e;
+        }
+
+        .sentence.currently-playing {
+            animation: pulse 1.5s ease-in-out infinite;
+            border-color: #fbbf24 !important;
+            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2) !important;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 0 6px rgba(251, 191, 36, 0.3);
+            }
+        }
     </style>
 </head>
 
@@ -1450,7 +1500,7 @@
         };
 
         const STORAGE_KEY = 'english-study-progress';
-        let state = { day: 1, revealed: [], speaking: false, repeatCount: 1, batchPlaying: false, reviewSentences: [], completedDays: [], lastDay: 1 };
+        let state = { day: 1, revealed: [], speaking: false, repeatCount: 1, repeatMode: 'sentence', batchPlaying: false, currentPlayingIdx: null, reviewSentences: [], completedDays: [], lastDay: 1 };
 
         function loadProgress() {
             try {
@@ -1608,6 +1658,11 @@
             render();
         }
 
+        function setRepeatMode(mode) {
+            state.repeatMode = mode;
+            render();
+        }
+
         async function batchPlay(startIdx, endIdx) {
             if (state.batchPlaying || !('speechSynthesis' in window)) return;
 
@@ -1618,42 +1673,98 @@
             state.batchPlaying = true;
             render();
 
-            for (let i = startIdx; i <= endIdx && i < sentences.length; i++) {
-                if (!state.batchPlaying) break; // 정지 버튼 클릭 시 중단
+            if (state.repeatMode === 'sentence') {
+                // 문장별 반복: 각 문장을 repeatCount만큼 반복
+                for (let i = startIdx; i <= endIdx && i < sentences.length; i++) {
+                    if (!state.batchPlaying) break;
 
-                // 각 문장을 repeatCount만큼 반복
-                for (let repeatNum = 0; repeatNum < state.repeatCount; repeatNum++) {
-                    if (!state.batchPlaying) break; // 정지 버튼 클릭 시 중단
+                    for (let repeatNum = 0; repeatNum < state.repeatCount; repeatNum++) {
+                        if (!state.batchPlaying) break;
+                        await playSingleSentence(sentences[i].en, i);
+                    }
 
-                    await new Promise((resolve) => {
-                        const utterance = new SpeechSynthesisUtterance(sentences[i].en);
-                        utterance.lang = 'en-US';
-                        utterance.rate = 0.85;
-                        utterance.pitch = 1.0;
-
-                        if (selectedVoice) {
-                            const voice = availableVoices.find(v => v.name === selectedVoice);
-                            if (voice) utterance.voice = voice;
-                        }
-
-                        utterance.onend = () => {
-                            setTimeout(resolve, 300);
-                        };
-                        utterance.onerror = resolve;
-
-                        speechSynthesis.cancel();
-                        speechSynthesis.speak(utterance);
-                    });
+                    // 다음 문장으로 넘어가기 전 추가 대기
+                    if (state.batchPlaying && i < endIdx && i < sentences.length - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    }
                 }
+            } else {
+                // 세트별 반복: 전체 세트를 repeatCount만큼 반복
+                for (let repeatNum = 0; repeatNum < state.repeatCount; repeatNum++) {
+                    if (!state.batchPlaying) break;
 
-                // 다음 문장으로 넘어가기 전 추가 대기
-                if (state.batchPlaying && i < endIdx && i < sentences.length - 1) {
-                    await new Promise(resolve => setTimeout(resolve, 500));
+                    for (let i = startIdx; i <= endIdx && i < sentences.length; i++) {
+                        if (!state.batchPlaying) break;
+                        await playSingleSentence(sentences[i].en, i);
+
+                        // 같은 세트 내 문장 간 대기
+                        if (state.batchPlaying && i < endIdx && i < sentences.length - 1) {
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                        }
+                    }
+
+                    // 다음 세트로 넘어가기 전 추가 대기
+                    if (state.batchPlaying && repeatNum < state.repeatCount - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 800));
+                    }
                 }
             }
 
             state.batchPlaying = false;
+            state.currentPlayingIdx = null;
             render();
+        }
+
+        async function playSingleSentence(text, idx) {
+            // 현재 재생 중인 문장 표시 및 스크롤
+            state.currentPlayingIdx = idx;
+
+            // 하이라이트 업데이트 (render 전체 호출 대신)
+            updateCurrentPlayingHighlight();
+
+            // 문장으로 스크롤
+            const sentenceEl = document.querySelector(`[data-sentence-idx="${idx}"]`);
+            if (sentenceEl) {
+                sentenceEl.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }
+
+            return new Promise((resolve) => {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.85;
+                utterance.pitch = 1.0;
+
+                if (selectedVoice) {
+                    const voice = availableVoices.find(v => v.name === selectedVoice);
+                    if (voice) utterance.voice = voice;
+                }
+
+                utterance.onend = () => {
+                    setTimeout(resolve, 300);
+                };
+                utterance.onerror = resolve;
+
+                speechSynthesis.cancel();
+                speechSynthesis.speak(utterance);
+            });
+        }
+
+        function updateCurrentPlayingHighlight() {
+            // 모든 문장에서 playing 클래스 제거
+            document.querySelectorAll('.sentence').forEach(el => {
+                el.classList.remove('currently-playing');
+            });
+
+            // 현재 재생 중인 문장에 클래스 추가
+            if (state.currentPlayingIdx !== null) {
+                const el = document.querySelector(`[data-sentence-idx="${state.currentPlayingIdx}"]`);
+                if (el) {
+                    el.classList.add('currently-playing');
+                }
+            }
         }
 
         function render() {
@@ -1720,6 +1831,17 @@
                 </button>
               `).join('')}
             </div>
+            <div class="mode-selector">
+              <span class="mode-label">🔄 모드</span>
+              <button class="mode-btn ${state.repeatMode === 'sentence' ? 'active' : ''}" 
+                      onclick="setRepeatMode('sentence')">
+                문장별
+              </button>
+              <button class="mode-btn ${state.repeatMode === 'set' ? 'active' : ''}" 
+                      onclick="setRepeatMode('set')">
+                세트별
+              </button>
+            </div>
             ${(state.speaking || state.batchPlaying) ? `
               <button class="batch-play-btn" 
                       onclick="stopSpeaking()" 
@@ -1747,7 +1869,7 @@
             ${sentences.length ? sentences.map((item, idx) => {
                 const isRevealed = !isReview || state.revealed.includes(idx);
                 return `
-                <div class="sentence ${isRevealed ? 'revealed' : 'hidden'}" ${!isRevealed ? `onclick="toggleReveal(${idx})"` : ''}>
+                <div class="sentence ${isRevealed ? 'revealed' : 'hidden'}" data-sentence-idx="${idx}" ${!isRevealed ? `onclick="toggleReveal(${idx})"` : ''}>
                   <div class="sentence-content">
                     <div class="sentence-text">
                       <div class="sentence-header">
