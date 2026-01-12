@@ -415,72 +415,158 @@
             text-align: center;
         }
 
-        .control-bar {
-            padding: 10px 16px;
+        .control-section {
             background: #fefce8;
             border-bottom: 1px solid #fef08a;
+        }
+
+        .settings-bar {
+            padding: 5px 12px;
             display: flex;
             gap: 6px;
             align-items: center;
+            justify-content: center;
             flex-wrap: wrap;
-            overflow-x: visible;
+            background: #fffbeb;
+            border-bottom: 1px solid #fef08a;
+        }
+
+        .control-bar {
+            padding: 5px 12px;
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            background: #fefce8;
+        }
+
+        .settings-group {
+            display: flex;
+            gap: 3px;
+            align-items: center;
+            background: white;
+            padding: 3px 5px;
+            border-radius: 18px;
+            border: 1px solid #fde047;
+        }
+
+        .settings-icon {
+            font-size: 11px;
+            opacity: 0.7;
         }
 
         .repeat-selector {
             display: flex;
-            gap: 4px;
+            gap: 3px;
             align-items: center;
         }
 
         .repeat-label {
-            font-size: 10px;
-            font-weight: 700;
-            color: #854d0e;
-            margin-right: 2px;
+            display: none;
         }
 
         .repeat-btn {
-            padding: 5px 10px;
-            border-radius: 10px;
-            border: 1px solid #fde047;
-            background: white;
-            font-size: 10px;
-            font-weight: 600;
-            color: #854d0e;
+            min-width: 32px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            border: none;
+            background: #fef3c7;
+            font-size: 11px;
+            font-weight: 700;
+            color: #92400e;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s;
             white-space: nowrap;
+        }
+
+        .repeat-btn:hover {
+            background: #fde047;
         }
 
         .repeat-btn.active {
-            background: #854d0e;
+            background: #f59e0b;
             color: white;
-            border-color: #854d0e;
+            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
         }
 
-        .batch-play-btn {
-            padding: 6px 12px;
+        .mode-selector {
+            display: flex;
+            gap: 3px;
+            align-items: center;
+        }
+
+        .mode-label {
+            display: none;
+        }
+
+        .mode-btn {
+            min-width: 44px;
+            padding: 4px 10px;
             border-radius: 12px;
             border: none;
-            background: #4f46e5;
-            color: white;
-            font-size: 10px;
+            background: #fef3c7;
+            font-size: 11px;
             font-weight: 700;
+            color: #92400e;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            transition: all 0.2s;
+            transition: all 0.15s;
             white-space: nowrap;
         }
 
+        .mode-btn:hover {
+            background: #fde047;
+        }
+
+        .mode-btn.active {
+            background: #f59e0b;
+            color: white;
+            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+        }
+
+        .batch-play-btn {
+            min-width: 60px;
+            padding: 7px 12px;
+            border-radius: 14px;
+            border: none;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            transition: all 0.2s;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+        }
+
         .batch-play-btn:hover {
-            background: #4338ca;
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .batch-play-btn:active {
+            transform: translateY(0);
         }
 
         .batch-play-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
+        }
+
+        .batch-play-btn.stop {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
+        }
+
+        .batch-play-btn.stop:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
         }
 
         .speak-controls {
@@ -496,38 +582,6 @@
             background: #eef2ff;
             padding: 4px 8px;
             border-radius: 8px;
-        }
-
-        .mode-selector {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-        }
-
-        .mode-label {
-            font-size: 10px;
-            font-weight: 700;
-            color: #854d0e;
-            margin-right: 2px;
-        }
-
-        .mode-btn {
-            padding: 5px 10px;
-            border-radius: 10px;
-            border: 1px solid #fde047;
-            background: white;
-            font-size: 10px;
-            font-weight: 600;
-            color: #854d0e;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-
-        .mode-btn.active {
-            background: #854d0e;
-            color: white;
-            border-color: #854d0e;
         }
 
         .sentence.currently-playing {
@@ -1678,6 +1732,8 @@
             state.batchPlaying = true;
             render();
 
+            console.log('🔄 재생 모드:', state.repeatMode, '| 반복 횟수:', state.repeatCount);
+
             if (state.repeatMode === 'sentence') {
                 // 문장별 반복: 각 문장을 repeatCount만큼 반복
                 for (let i = startIdx; i <= endIdx && i < sentences.length; i++) {
@@ -1826,43 +1882,49 @@
               </button>
             `).join('')}
           </div>
-          <div class="control-bar">
-            <div class="repeat-selector">
-              <span class="repeat-label">🔁 반복</span>
-              ${[1, 3, 5, 10].map(n => `
-                <button class="repeat-btn ${state.repeatCount === n ? 'active' : ''}" 
-                        onclick="setRepeatCount(${n})">
-                  ${n}회
+          </div>
+          <div class="settings-bar">
+            <div class="settings-group">
+              <span class="settings-icon">🔁</span>
+              <div class="repeat-selector">
+                ${[1, 3, 5, 10].map(n => `
+                  <button class="repeat-btn ${state.repeatCount === n ? 'active' : ''}" 
+                          onclick="setRepeatCount(${n})">
+                    ${n}회
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+            <div class="settings-group">
+              <span class="settings-icon">🔄</span>
+              <div class="mode-selector">
+                <button class="mode-btn ${state.repeatMode === 'sentence' ? 'active' : ''}" 
+                        onclick="setRepeatMode('sentence')">
+                  문장별
                 </button>
-              `).join('')}
+                <button class="mode-btn ${state.repeatMode === 'set' ? 'active' : ''}" 
+                        onclick="setRepeatMode('set')">
+                  세트별
+                </button>
+              </div>
             </div>
-            <div class="mode-selector">
-              <span class="mode-label">🔄 모드</span>
-              <button class="mode-btn ${state.repeatMode === 'sentence' ? 'active' : ''}" 
-                      onclick="setRepeatMode('sentence')">
-                문장별
-              </button>
-              <button class="mode-btn ${state.repeatMode === 'set' ? 'active' : ''}" 
-                      onclick="setRepeatMode('set')">
-                세트별
-              </button>
-            </div>
+          </div>
+          <div class="control-bar">
             ${(state.speaking || state.batchPlaying) ? `
-              <button class="batch-play-btn" 
-                      onclick="stopSpeaking()" 
-                      style="background: #dc2626;">
-                ⏹️ 정지
+              <button class="batch-play-btn stop" 
+                      onclick="stopSpeaking()">
+                ⏹ 정지
               </button>
             ` : ''}
             <button class="batch-play-btn" 
                     onclick="batchPlay(0, 4)" 
                     ${state.batchPlaying || state.speaking ? 'disabled' : ''}>
-              ▶️ 1-5번
+              ▶️ 1-5
             </button>
             <button class="batch-play-btn" 
                     onclick="batchPlay(5, 9)" 
                     ${state.batchPlaying || state.speaking ? 'disabled' : ''}>
-              ▶️ 6-10번
+              ▶️ 6-10
             </button>
             <button class="batch-play-btn" 
                     onclick="batchPlay(0, 9)" 
