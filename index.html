@@ -416,39 +416,40 @@
         }
 
         .control-bar {
-            padding: 12px 20px;
+            padding: 10px 16px;
             background: #fefce8;
             border-bottom: 1px solid #fef08a;
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
-            flex-wrap: nowrap;
-            overflow-x: auto;
+            flex-wrap: wrap;
+            overflow-x: visible;
         }
 
         .repeat-selector {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             align-items: center;
         }
 
         .repeat-label {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             color: #854d0e;
-            margin-right: 4px;
+            margin-right: 2px;
         }
 
         .repeat-btn {
-            padding: 6px 12px;
-            border-radius: 12px;
+            padding: 5px 10px;
+            border-radius: 10px;
             border: 1px solid #fde047;
             background: white;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             color: #854d0e;
             cursor: pointer;
             transition: all 0.2s;
+            white-space: nowrap;
         }
 
         .repeat-btn.active {
@@ -458,18 +459,19 @@
         }
 
         .batch-play-btn {
-            padding: 8px 16px;
-            border-radius: 14px;
+            padding: 6px 12px;
+            border-radius: 12px;
             border: none;
             background: #4f46e5;
             color: white;
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 700;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             transition: all 0.2s;
+            white-space: nowrap;
         }
 
         .batch-play-btn:hover {
@@ -498,28 +500,28 @@
 
         .mode-selector {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             align-items: center;
-            margin-left: 8px;
         }
 
         .mode-label {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             color: #854d0e;
-            margin-right: 4px;
+            margin-right: 2px;
         }
 
         .mode-btn {
-            padding: 6px 12px;
-            border-radius: 12px;
+            padding: 5px 10px;
+            border-radius: 10px;
             border: 1px solid #fde047;
             background: white;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             color: #854d0e;
             cursor: pointer;
             transition: all 0.2s;
+            white-space: nowrap;
         }
 
         .mode-btn.active {
@@ -1556,8 +1558,8 @@
             state.currentRepeat = 0;
             state.totalRepeat = times;
 
-            // 해당 버튼만 업데이트 (전체 render 대신)
-            updateSpeakerButton(idx, true);
+            // Re-render to show stop button in control bar
+            render();
 
             const speakOnce = () => {
                 const utterance = new SpeechSynthesisUtterance(text);
@@ -1579,6 +1581,8 @@
                         state.speaking = false;
                         state.speakingIdx = null;
                         updateSpeakerButton(idx, false);
+                        // Re-render to hide stop button
+                        render();
                     }
                 };
 
@@ -1586,6 +1590,7 @@
                     state.speaking = false;
                     state.speakingIdx = null;
                     updateSpeakerButton(idx, false);
+                    render();
                 };
 
                 speechSynthesis.cancel();
