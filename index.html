@@ -1621,25 +1621,35 @@
             for (let i = startIdx; i <= endIdx && i < sentences.length; i++) {
                 if (!state.batchPlaying) break; // 정지 버튼 클릭 시 중단
 
-                await new Promise((resolve) => {
-                    const utterance = new SpeechSynthesisUtterance(sentences[i].en);
-                    utterance.lang = 'en-US';
-                    utterance.rate = 0.85;
-                    utterance.pitch = 1.0;
+                // 각 문장을 repeatCount만큼 반복
+                for (let repeatNum = 0; repeatNum < state.repeatCount; repeatNum++) {
+                    if (!state.batchPlaying) break; // 정지 버튼 클릭 시 중단
 
-                    if (selectedVoice) {
-                        const voice = availableVoices.find(v => v.name === selectedVoice);
-                        if (voice) utterance.voice = voice;
-                    }
+                    await new Promise((resolve) => {
+                        const utterance = new SpeechSynthesisUtterance(sentences[i].en);
+                        utterance.lang = 'en-US';
+                        utterance.rate = 0.85;
+                        utterance.pitch = 1.0;
 
-                    utterance.onend = () => {
-                        setTimeout(resolve, 800);
-                    };
-                    utterance.onerror = resolve;
+                        if (selectedVoice) {
+                            const voice = availableVoices.find(v => v.name === selectedVoice);
+                            if (voice) utterance.voice = voice;
+                        }
 
-                    speechSynthesis.cancel();
-                    speechSynthesis.speak(utterance);
-                });
+                        utterance.onend = () => {
+                            setTimeout(resolve, 300);
+                        };
+                        utterance.onerror = resolve;
+
+                        speechSynthesis.cancel();
+                        speechSynthesis.speak(utterance);
+                    });
+                }
+
+                // 다음 문장으로 넘어가기 전 추가 대기
+                if (state.batchPlaying && i < endIdx && i < sentences.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
             }
 
             state.batchPlaying = false;
