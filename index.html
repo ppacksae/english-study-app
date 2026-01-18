@@ -6,7 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Daily English Practice</title>
+
+    <!-- SEO Meta Tags -->
+    <title>Ppacksae's English Daily - 매일 영어 회화 연습</title>
+    <meta name="description" content="매일 10개의 영어 문장으로 실전 회화를 연습하세요. 음성 재생, 반복 학습, 챌린지 모드를 지원하는 Ppacksae의 영어 학습 앱">
+    <meta name="keywords" content="영어 학습, 영어 회화, 영어 문장, 일상 영어, 영어 공부, English practice, Ppacksae, 영어 반복 학습, 영어 음성">
+    <meta name="author" content="Ppacksae">
+
+    <!-- Open Graph Meta Tags (Facebook, KakaoTalk, etc.) -->
+    <meta property="og:title" content="Ppacksae's English Daily - 매일 영어 회화 연습">
+    <meta property="og:description" content="매일 10개의 영어 문장으로 실전 회화를 연습하세요. 음성 재생, 반복 학습, 챌린지 모드 지원">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ppacksae.github.io/english-study-app/">
+    <meta property="og:site_name" content="Ppacksae's English Daily">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Ppacksae's English Daily">
+    <meta name="twitter:description" content="매일 10개의 영어 문장으로 실전 회화를 연습하세요">
+
+    <!-- Additional SEO -->
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://ppacksae.github.io/english-study-app/">
     <style>
         * {
             margin: 0;
@@ -1732,7 +1753,7 @@
         }
 
         async function batchPlay(startIdx, endIdx) {
-            
+
             if (state.batchPlaying || !('speechSynthesis' in window)) {
                 return;
             }
@@ -1838,7 +1859,7 @@
             // Update only the control bar to show/hide stop button
             const controlBar = document.querySelector('.control-bar');
             if (!controlBar) return;
-            
+
             // Re-render only control bar buttons
             const stopButtonHtml = (state.speaking || state.batchPlaying) ? `
               <button class="batch-play-btn stop" 
@@ -1846,7 +1867,7 @@
                 ⏹ 정지
               </button>
             ` : '';
-            
+
             const playButtonsHtml = `
             <button class="batch-play-btn" 
                     onclick="batchPlay(0, 4)" 
@@ -1864,7 +1885,7 @@
               ▶️ 전체
             </button>
             `;
-            
+
             controlBar.innerHTML = stopButtonHtml + playButtonsHtml;
         }
 
@@ -2029,7 +2050,7 @@
         }
 
         render();
-        
+
         // 🔥 페이지 로드 확인
         console.log('현재 repeatMode:', state.repeatMode);
         console.log('현재 repeatCount:', state.repeatCount);
